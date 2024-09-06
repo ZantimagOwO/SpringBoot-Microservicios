@@ -7,7 +7,7 @@ package com.paymentchain.customer.business.transactions;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.paymentchain.customer.entities.Customer;
 import com.paymentchain.customer.entities.CustomerProduct;
-import com.paymentchain.customer.exception.BussinesRuleException;
+import com.paymentchain.customer.exception.BusinessRuleException;
 import com.paymentchain.customer.respository.CustomerRepository;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.epoll.EpollChannelOption;
@@ -69,13 +69,13 @@ public class BussinesTransaction {
     
     
    
-    public Customer post(Customer input) throws BussinesRuleException,UnknownHostException {
+    public Customer post(Customer input) throws BusinessRuleException,UnknownHostException {
            if (input.getProducts() != null) {
             for (Iterator<CustomerProduct> it = input.getProducts().iterator(); it.hasNext();) {
                 CustomerProduct dto = it.next();
                 String productName = getProductName(dto.getProductId());
                 if(productName.isBlank()){
-                    BussinesRuleException bussinesRuleException = new BussinesRuleException("1025", "Error validacion, producto con id "+dto.getProductId()+ " no existe", HttpStatus.PRECONDITION_FAILED);
+                    BusinessRuleException bussinesRuleException = new BusinessRuleException("1025", "Error validacion, producto con id "+dto.getProductId()+ " no existe", HttpStatus.PRECONDITION_FAILED);
                     throw  bussinesRuleException;
                 }else{
                     dto.setCustomer(input);

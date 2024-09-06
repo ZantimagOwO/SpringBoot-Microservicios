@@ -8,7 +8,7 @@ package com.paymentchain.customer.controller;
 import com.paymentchain.customer.business.transactions.BussinesTransaction;
 import com.paymentchain.customer.entities.Customer;
 import com.paymentchain.customer.entities.CustomerProduct;
-import com.paymentchain.customer.exception.BussinesRuleException;
+import com.paymentchain.customer.exception.BusinessRuleException;
 import com.paymentchain.customer.respository.CustomerRepository;
 import java.net.UnknownHostException;
 import org.springframework.web.bind.annotation.RestController;
@@ -95,7 +95,7 @@ public class CustomerRestController {
     }
 
     @PostMapping
-    public ResponseEntity<?> post(@RequestBody Customer input) throws BussinesRuleException, UnknownHostException {
+    public ResponseEntity<?> post(@RequestBody Customer input) throws BusinessRuleException, UnknownHostException {
         Customer post = bt.post(input);
        return ResponseEntity.status(HttpStatus.CREATED).body(post);
     }

@@ -6,7 +6,7 @@ package com.paymentchain.transactions.exceptions;
 
 import com.paymentchain.transactions.exceptions.customExceptions.ApiConnectionException;
 import com.paymentchain.transactions.common.StandarizedApiExceptionResponse;
-import com.paymentchain.transactions.exceptions.customExceptions.BussinesRuleException;
+import com.paymentchain.transactions.exceptions.customExceptions.BusinessRuleException;
 import org.apache.http.conn.ConnectTimeoutException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,9 +32,9 @@ public class ApiExceptionHandler {
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(standarizedApiExceptionResponse);
     }
     
-      @ExceptionHandler(BussinesRuleException.class)
-    public ResponseEntity<?> handleBussinessLogicException(BussinesRuleException ex){
-        StandarizedApiExceptionResponse standarizedApiExceptionResponse = new StandarizedApiExceptionResponse("TECNICO", "Logic error", ex.getHttpStatus() + "", ex.getMessage());
+      @ExceptionHandler(BusinessRuleException.class)
+    public ResponseEntity<?> handleBussinessLogicException(BusinessRuleException ex){
+        StandarizedApiExceptionResponse standarizedApiExceptionResponse = new StandarizedApiExceptionResponse("TECNICO", "Logic error", ex.getHttpStatus() + "", ex.getDescription());
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(standarizedApiExceptionResponse);
     }
     

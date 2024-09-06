@@ -5,6 +5,7 @@
  */
 package com.paymentchain.billing.entities;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -19,11 +20,13 @@ import lombok.Data;
  */
 @Entity
 @Data
+@Schema(description = "Invoice structure in DB")
 public class Invoice {
    @Id
   @GeneratedValue(strategy=GenerationType.AUTO)
    private long id;
    private long customerId;
+   @Schema(description = "Numerico maño")
    private String number;
    private String detail;
    private double amount;  

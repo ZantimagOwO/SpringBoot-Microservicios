@@ -16,16 +16,16 @@ import org.springframework.http.HttpStatus;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Builder
-public class BussinesRuleException extends Exception{
+public class BusinessRuleException extends Exception{
     private String description;   
     private HttpStatus httpStatus;
 
-    public BussinesRuleException(String description, HttpStatus httpStatus) {
+    public BusinessRuleException(String description, HttpStatus httpStatus) {
         this.description = description;
         this.httpStatus = httpStatus;
     }
 
-    public BussinesRuleException(String description, HttpStatus httpStatus, String message, Throwable cause) {
+    public BusinessRuleException(String description, HttpStatus httpStatus, String message, Throwable cause) {
         super(message, cause);
         this.description = description;
         this.httpStatus = httpStatus;

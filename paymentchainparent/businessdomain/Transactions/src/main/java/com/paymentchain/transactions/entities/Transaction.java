@@ -5,6 +5,7 @@
  */
 package com.paymentchain.transactions.entities;
 
+import jakarta.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -30,5 +31,12 @@ public class Transaction {
    private double fee;   
    private String description;
    private String status;
-   private String channel;   
+   private String channel;
+   
+   public void calcularMonto(){
+       if(amount < 0){
+           fee = amount * 0.0098;
+           amount += fee;
+       }
+   }
 }

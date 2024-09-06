@@ -8,7 +8,7 @@ package com.paymentchain.transactions.controller;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.paymentchain.transactions.entities.Transaction;
 import com.paymentchain.transactions.exceptions.customExceptions.ApiConnectionException;
-import com.paymentchain.transactions.exceptions.customExceptions.BussinesRuleException;
+import com.paymentchain.transactions.exceptions.customExceptions.BusinessRuleException;
 import com.paymentchain.transactions.respository.TransactionRepository;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.epoll.EpollChannelOption;
@@ -99,11 +99,11 @@ public class TransactionRestController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> put(@PathVariable(name = "id") long id, @RequestBody Transaction input) throws BussinesRuleException {
+    public ResponseEntity<?> put(@PathVariable(name = "id") long id, @RequestBody Transaction input) throws BusinessRuleException {
         Optional<Transaction> exists = transactionRepository.findById(id);
 
         if (exists.isEmpty()) {
-            throw new BussinesRuleException("No product with ID " + id + " found", HttpStatus.NOT_FOUND);
+            throw new BusinessRuleException("No product with ID " + id + " found", HttpStatus.NOT_FOUND);
         }
 
         Transaction find = (Transaction) exists.get();
@@ -121,28 +121,23 @@ public class TransactionRestController {
     }
 
     @PostMapping
-    public ResponseEntity<?> post(@RequestBody Transaction input) throws BussinesRuleException, UnknownHostException {
+    public ResponseEntity<?> post(@RequestBody Transaction input) throws BusinessRuleException, UnknownHostException {
 
         if (input.getIbanAccount() == null || input.getIbanAccount().trim().isBlank()) {
-            throw new BussinesRuleException("A transaction must have an IBAN asociated", HttpStatus.BAD_REQUEST);
+            throw new BusinessRuleException("A transaction must have an IBAN asociated", HttpStatus.BAD_REQUEST);
         }
 
         if (input.getReference() == null || input.getReference().trim().isBlank()) {
-            throw new BussinesRuleException("A transaction must have a reference", HttpStatus.BAD_REQUEST);
+            throw new BusinessRuleException("A transaction must have a reference", HttpStatus.BAD_REQUEST);
         }
         
-        ibanExists(input.getIbanAccount());
-
-        Optional alreadyExists = transactionRepository.findById(input.getId());
-
-        if (alreadyExists.isPresent()) {
-            throw new BussinesRuleException("A product with ID " + input.getId() + " already exists", HttpStatus.PRECONDITION_FAILED);
-        }
+        //ibanExists(input.getIbanAccount());
         
+        input.calcularMonto();
         double dineroEnCuenta = calcularDineroEnCuenta(input.getIbanAccount());
         
-        if(dineroEnCuenta - input.getAmount() < 0){
-            throw new BussinesRuleException("Not enought money, transaction canceled", HttpStatus.PRECONDITION_FAILED);
+        if(dineroEnCuenta + input.getAmount() <= 0){
+            throw new BusinessRuleException("Not enought money, transaction canceled", HttpStatus.PRECONDITION_FAILED);
         }
 
         Transaction save = transactionRepository.save(input);
@@ -151,16 +146,16 @@ public class TransactionRestController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable(name = "id") long id) throws BussinesRuleException {
+    public ResponseEntity<?> delete(@PathVariable(name = "id") long id) throws BusinessRuleException {
         Optional<Transaction> findById = transactionRepository.findById(id);
         if (findById.isEmpty()) {
-            throw new BussinesRuleException("No product with ID " + id + " found", HttpStatus.NOT_FOUND);
+            throw new BusinessRuleException("No product with ID " + id + " found", HttpStatus.NOT_FOUND);
         }
 
         try {
             transactionRepository.delete(findById.get());
         } catch (IllegalArgumentException ex) {
-            throw new BussinesRuleException("ID is null", HttpStatus.BAD_REQUEST);
+            throw new BusinessRuleException("ID is null", HttpStatus.BAD_REQUEST);
         }
 
         return ResponseEntity.ok().build();
@@ -178,7 +173,7 @@ public class TransactionRestController {
                     .retrieve()
                     .onStatus(HttpStatusCode::is4xxClientError, response -> {
                         if (response.statusCode() == HttpStatus.NOT_FOUND) {
-                            return Mono.error(new BussinesRuleException("No account associated with that IBAN", HttpStatus.PRECONDITION_FAILED));
+                            return Mono.error(new BusinessRuleException("No account associated with that IBAN", HttpStatus.PRECONDITION_FAILED));
                         }
                         return Mono.error(new ApiConnectionException("Could not connect to customer service", HttpStatus.BAD_GATEWAY));
                     })

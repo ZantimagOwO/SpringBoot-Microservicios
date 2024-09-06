@@ -6,7 +6,7 @@
 package com.paymentchain.product.controller;
 
 import com.paymentchain.product.entities.Product;
-import com.paymentchain.product.exceptions.customExceptions.BussinesRuleException;
+import com.paymentchain.product.exceptions.customExceptions.BusinessRuleException;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.List;
@@ -55,11 +55,11 @@ public class ProductRestController {
     }
     
     @PutMapping("/{id}")
-    public ResponseEntity<?> put(@PathVariable(name = "id") long id, @RequestBody Product input) throws BussinesRuleException {
+    public ResponseEntity<?> put(@PathVariable(name = "id") long id, @RequestBody Product input) throws BusinessRuleException {
         Optional exists = productRepository.findById(id);   
 
         if(exists.isEmpty()){
-            throw new BussinesRuleException("No product with ID " + id + " found", HttpStatus.NOT_FOUND);
+            throw new BusinessRuleException("No product with ID " + id + " found", HttpStatus.NOT_FOUND);
         }
         
         Product find = (Product) exists.get();
@@ -71,20 +71,20 @@ public class ProductRestController {
     }
     
     @PostMapping
-    public ResponseEntity<?> post(@RequestBody Product input) throws BussinesRuleException {
+    public ResponseEntity<?> post(@RequestBody Product input) throws BusinessRuleException {
         
         if(input.getCode()== null || input.getCode().trim().isBlank()){
-            throw new BussinesRuleException("A product must have a code", HttpStatus.BAD_REQUEST);
+            throw new BusinessRuleException("A product must have a code", HttpStatus.BAD_REQUEST);
         }
         
         if(input.getName()== null || input.getName().trim().isBlank()){
-            throw new BussinesRuleException("A product must have a name", HttpStatus.BAD_REQUEST);
+            throw new BusinessRuleException("A product must have a name", HttpStatus.BAD_REQUEST);
         }
         
         Optional alreadyExists = productRepository.findById(input.getId());
         
         if(alreadyExists.isPresent()){
-            throw new BussinesRuleException("A product with ID " + input.getCode() + " already exists", HttpStatus.PRECONDITION_FAILED);
+            throw new BusinessRuleException("A product with ID " + input.getCode() + " already exists", HttpStatus.PRECONDITION_FAILED);
         }
         
         Product save = productRepository.save(input);
@@ -95,17 +95,17 @@ public class ProductRestController {
     }
     
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable(name = "id") long id) throws BussinesRuleException {  
+    public ResponseEntity<?> delete(@PathVariable(name = "id") long id) throws BusinessRuleException {  
         Optional<Product> findById = productRepository.findById(id);   
         
         if(findById.isEmpty()){
-            throw new BussinesRuleException("No product with ID " + id + " found", HttpStatus.NOT_FOUND);
+            throw new BusinessRuleException("No product with ID " + id + " found", HttpStatus.NOT_FOUND);
         }
  
         try {
             productRepository.delete(findById.get());  
         } catch(IllegalArgumentException ex){
-            throw new BussinesRuleException("ID is null", HttpStatus.BAD_REQUEST);
+            throw new BusinessRuleException("ID is null", HttpStatus.BAD_REQUEST);
         }
         
         return ResponseEntity.ok().build();
